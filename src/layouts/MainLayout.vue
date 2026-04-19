@@ -1,116 +1,150 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
+  <q-layout view="hHh lpR fFf" class="bg-grey-1">
 
+    <!-- 🔥 HEADER -->
+    <q-header elevated class="bg-primary text-white shadow-3">
+      <q-toolbar>
+
+        <!-- 🍽️ LOGO -->
+        <q-avatar size="40px" class="q-mr-sm">
+          <img src="~assets/ios.png" />
+        </q-avatar>
+
+        <!-- 🏷️ TITLE -->
         <q-toolbar-title>
-          Quasar App
+          FoodHub
+          <div class="text-caption text-blue-2">
+            Table: {{ tableId }}
+          </div>
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+
+
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
-      <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
-
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
-
+    <!-- 📄 PAGE CONTENT -->
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <!-- ⚡ BOTTOM NAVIGATION -->
+    <q-footer elevated class="bg-white text-dark">
+      <div class="row text-center">
+
+        <!-- 🍽️ MENU -->
+        <div
+          class="col q-pa-sm cursor-pointer"
+          :class="{ active: isActive('menu') }"
+          @click="goMenu"
+        >
+          <q-icon name="restaurant_menu" size="24px" />
+          <div class="text-caption">Menu</div>
+        </div>
+
+        <!-- 🛒 CART -->
+        <div
+          class="col q-pa-sm cursor-pointer"
+          :class="{ active: isActive('cart') }"
+          @click="goCart"
+        >
+          <q-icon name="shopping_cart" size="24px" />
+          <div class="text-caption">Cart</div>
+        </div>
+
+        <!-- ⏳ STATUS -->
+        <div
+          class="col q-pa-sm cursor-pointer"
+          :class="{ active: isActive('status') }"
+          @click="goStatus"
+        >
+          <q-icon name="schedule" size="24px" />
+          <div class="text-caption">Status</div>
+        </div>
+
+        <!-- 🍽️ SERVE -->
+        <div
+          class="col q-pa-sm cursor-pointer"
+          :class="{ active: isActive('serve') }"
+          @click="goServe"
+        >
+          <q-icon name="room_service" size="24px" />
+          <div class="text-caption">Order-history</div>
+        </div>
+
+      </div>
+    </q-footer>
+
+
+
   </q-layout>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
+export default {
+  name: "CustomerMainLayout",
 
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-]
-
-export default defineComponent({
-  name: 'MainLayout',
-
-  components: {
-    EssentialLink
-  },
-
-  setup () {
-    const leftDrawerOpen = ref(false)
-
+  data () {
     return {
-      linksList,
-      leftDrawerOpen,
-      toggleLeftDrawer () {
-        leftDrawerOpen.value = !leftDrawerOpen.value
+      tableId: null
+    }
+  },
+
+  computed: {
+    cartCount () {
+      return JSON.parse(localStorage.getItem("cart") || "[]").length
+    }
+  },
+
+  // 🔥 IMPORTANT (auto update tableId when route changes)
+  watch: {
+    '$route.params.id': {
+      immediate: true,
+      handler(val) {
+        this.tableId = val || "1"
       }
     }
+  },
+
+  methods: {
+
+    // 🔗 ROUTES
+    goMenu () {
+      this.$router.push(`/customer/menu/${this.tableId}`)
+    },
+
+    goCart () {
+      this.$router.push(`/customer/cart/${this.tableId}`)
+    },
+
+    goStatus () {
+      this.$router.push(`/customer/status/${this.tableId}`)
+    },
+
+    goServe () {
+      this.$router.push(`/customer/serve/${this.tableId}`)
+    },
+
+    // 🎯 ACTIVE BUTTON STYLE
+    isActive (page) {
+      return this.$route.path.includes(page)
+    }
+
   }
-})
+}
 </script>
+
+<style scoped>
+.bg-grey-1 {
+  background: #f6f7fb;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.active {
+  color: #1976d2;
+  font-weight: bold;
+}
+</style>
